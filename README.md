@@ -3,6 +3,7 @@ Simple tool to check issuing certificate authority for a list of origin servers
 
 ## TL;DR
 `pip install -r requirements.txt`
+
 `./cert_audit.py -r target.roots`
 
 ## Important!!
