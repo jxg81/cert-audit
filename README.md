@@ -5,7 +5,7 @@ Simple tool to check issuing certificate authority for a list of origin servers
 `./cert_audit.py -r target.roots`
 
 ## Why?
-Someone asked me if people are accessing sites that have an cert signed by one of the Entrust authorities that Google Chrome is about to [stop trusting](https://security.googleblog.com/2024/06/sustaining-digital-certificate-security.html)
+Someone asked me if people are accessing sites that have a cert signed by one of the Entrust authorities that Google Chrome is about to [stop trusting](https://security.googleblog.com/2024/06/sustaining-digital-certificate-security.html)
 
 ## How?
 Run the script (./cert_audit.py). If you include `input.csv` in the directory you are running the script from you don't need to specify any command line options. It will produce an `output.csv` file in the same directory.
