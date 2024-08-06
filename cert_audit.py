@@ -133,7 +133,7 @@ def generate_url_list_from_txt(txt_input):
     """
     urls = []
     with open(txt_input, 'r') as data:
-        # Read the CSV file using columns variable to select columns and create a list of hostnames if protocol value is SSL or HTTPS
+        # Read the text file and create a list of hostnames
         with alive_bar(title='Reading Text File Input', bar='classic') as bar:
             for line in data:
                 urls.append('https://' + line.rstrip())
