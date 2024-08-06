@@ -2,7 +2,11 @@
 Simple tool to check issuing certificate authority for a list of origin servers
 
 ## TL;DR
+`pip install -r requirements.txt`
 `./cert_audit.py -r target.roots`
+
+## Important!!
+Ensure you install packages from `requirements.txt`
 
 ## Why?
 Someone asked me if people are accessing sites that have a cert signed by one of the Entrust authorities that Google Chrome is about to [stop trusting](https://security.googleblog.com/2024/06/sustaining-digital-certificate-security.html)
