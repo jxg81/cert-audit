@@ -1,0 +1,4 @@
+timestamp,user,hostname,uri,protocol,action
+20,john,www.example.com,www.example.com/info,SSL,permit
+40,susan,www.example.net,www.example.net/contact,HTTPS,deny
+80,beth,www.example.org,www.example.org/home,HTTP,permit

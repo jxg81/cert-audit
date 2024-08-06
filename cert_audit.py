@@ -173,6 +173,8 @@ def write_errors(failed_urls: list, error_log: str):
     Returns:
         None
     """
+    if not failed_urls:
+        return
     with open(error_log, 'w') as file:
         file.write('********** ERROR DESCRIPTION **********\n')
         file.write('SSL Verification Error: Likely using self-signed certificate or HSTS with cert pinning\n')
@@ -185,29 +187,77 @@ def write_errors(failed_urls: list, error_log: str):
                 file.write(f'{item.replace("https://", "")}\n')
                 bar()
             
-def main(csv_input: str, csv_output: str, error_log: str, txt_input: str, timeout: float):
+def generate_target_root_list(target_roots):
+    """
+    Generates a list of target roots by reading the contents of the `target_roots` file.
+
+    Parameters:
+        target_roots (str): The path to the file containing the target roots.
+
+    Returns:
+        list: A list of target roots, each represented as a string.
+    """
+    roots = []
+    with open(target_roots, 'r') as file:
+        for line in file:
+            roots.append(line.replace('\n', ''))
+    print(roots)
+    return roots
+
+def evaluate_target_root_list(targets: list, certificates_details: dict):
+    """
+    Evaluate the target root list based on the provided targets and certificate details.
+
+    Parameters:
+        targets (list): A list of target roots to evaluate.
+        certificates_details (dict): A dictionary containing certificate details for each URL.
+
+    Returns:
+        dict: A dictionary of target URLs that match the provided targets.
+    """
+    target_urls = {}
+    for url, details in certificates_details.items():
+        if details["issuer"]["commonName"] in targets:
+            target_urls.update(certificates_details)
+    return target_urls
+                    
+def main(csv_input: str, csv_output: str, error_log: str, txt_input: str, timeout: float, target_roots: str, target_output: str):
     """
     The main function that takes in four parameters:
-    
-    - csv_input (str): The path to the input CSV file.
-    - csv_output (str): The path to the output CSV file.
-    - error_log (str): The path to the error log file.
-    - txt_input (str): The path to the input text file.
-    
-    The function reads the input CSV or text file to generate a list of URLs.
+
+    Args:
+        csv_input (str): The path to the input CSV file.
+        csv_output (str): The path to the output CSV file.
+        error_log (str): The path to the error log file.
+        txt_input (str): The path to the input text file.
+        timeout (float): The timeout value in seconds for the connection.
+        target_roots (str): The path to the file containing the trusted root certificates.
+        target_output (str): The path to the output file containing the target URLs.
+
+    This function reads the input CSV or text file to generate a list of URLs.
     It then calls the get_certificates_details function to retrieve the certificate details
     for each URL. The function writes the certificate details to the output CSV file
     and the failed URLs to the error log file.
     """
+    # Generate a list of URLs from CSV or text file
     if txt_input:
-        urls = list(set(generate_url_list_from_txt(txt_input)))
+        urls = list(set(generate_url_list_from_txt(txt_input)))  # Remove duplicates from the list
     else:
         urls = list(set(generate_url_list_from_csv(csv_input)))
 
+    # Get certificate details for each URL
     certificates_details, failed_urls = get_all_certs(urls, timeout)
-    
+
+    # If target roots are provided, filter the certificates based on the target roots
+    if target_roots:
+        targets = generate_target_root_list(target_roots)
+        target_urls = evaluate_target_root_list(targets, certificates_details)
+        write_results(target_urls, target_output)
+
+    # Write certificate details to output CSV file
     write_results(certificates_details, csv_output)
-    
+
+    # Write failed URLs to error log file
     write_errors(failed_urls, error_log)
 
 if __name__ == '__main__':
@@ -226,11 +276,15 @@ if __name__ == '__main__':
     argParser.add_argument("--output_file", "-o", default='output.csv', type=str, help="CSV formatted audit results to be output")
     argParser.add_argument("--text_input", "-x", default='', type=str, help="Alternate input file formatted as a flat text file with fqdns only")
     argParser.add_argument("--error_log", "-e", default='errors.log', type=str, help="Error log file")
+    argParser.add_argument("--target_roots", "-r", default='', type=str, help="Explicit root servers of interest")
+    argParser.add_argument("--target_file", "-f", default='target_output.csv', type=str, help="Output of servers that match with targeted roots")
     args = argParser.parse_args()
     INPUT_FILE = args.input_file
     OUTPUT_FILE = args.output_file
     TEXT_INPUT = args.text_input
     ERROR_LOG = args.error_log
     TIMEOUT = args.timeout
-    main(INPUT_FILE, OUTPUT_FILE, ERROR_LOG, TEXT_INPUT, TIMEOUT)
+    TARGET_ROOTS = args.target_roots
+    TARGET_FILE = args.target_file
+    main(INPUT_FILE, OUTPUT_FILE, ERROR_LOG, TEXT_INPUT, TIMEOUT, TARGET_ROOTS, TARGET_FILE)
     
