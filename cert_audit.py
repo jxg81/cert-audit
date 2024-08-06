@@ -201,7 +201,6 @@ def generate_target_root_list(target_roots):
     with open(target_roots, 'r') as file:
         for line in file:
             roots.append(line.replace('\n', ''))
-    print(roots)
     return roots
 
 def evaluate_target_root_list(targets: list, certificates_details: dict):
@@ -268,7 +267,7 @@ if __name__ == '__main__':
                     The hostname should be formatted as host.example.com (Must not include leading https:// or trailing /path).
                     ''',
                     epilog='''
-                    Default input file is 'input.csv', default output file is 'output.csv', default error log is error.log, default timeout is 3 seconds
+                    Default input file is 'input.csv', default output file is 'output.csv', default error log is 'error.log', default timeout is 3 seconds, default target output is 'target_outputs.csv'
                     If '--text_input' is provided it will override the CSV input file. Text input option should be formatted as a plain text file formatted with one hostname per line.
                     ''')
     argParser.add_argument("--timeout", "-t", default=3, type=float, help="Set timeout in seconds for connection to origin servers")
